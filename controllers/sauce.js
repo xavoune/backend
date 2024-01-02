@@ -107,7 +107,7 @@ exports.likeOrDislikeSauce = (req, res, next) => {
   const sauceId = req.params.id;
   const like = req.body.like;
 
-  // Vérifiez si l'utilisateur a déjà liké ou disliké la sauce
+  // Vérifie si l'utilisateur a déjà liké ou disliké la sauce
   Sauce.findOne({ _id: sauceId })
       .then(sauce => {
           if (!sauce) {
@@ -139,7 +139,7 @@ exports.likeOrDislikeSauce = (req, res, next) => {
               }
           }
 
-          // Mettez à jour la sauce dans la base de données
+          // Mettre à jour la sauce dans la base de données
           sauce.save()
               .then(() => res.status(200).json({ message: 'Like/Dislike updated successfully' }))
               .catch(error => res.status(500).json({ error }));
