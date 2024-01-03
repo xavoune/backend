@@ -1,10 +1,7 @@
 const multer = require('multer');
 
-const MIME_TYPES = {
-  'image/jpg': 'jpg',
-  'image/jpeg': 'jpg',
-  'image/png': 'png'
-};
+const allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+const maxFileSize = 5 * 1024 * 1024; // 5 Mo
 
 const storage = multer.diskStorage({
   destination: (req, file, callback) => {
@@ -12,9 +9,28 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, callback) => {
     const name = file.originalname.split(' ').join('_');
-    const extension = MIME_TYPES[file.mimetype];
-    callback(null, name + Date.now() + '.' + extension);
+    const extension = allowedMimeTypes.includes(file.mimetype) ? file.mimetype.split('/')[1] : null;
+
+    if (extension) {
+      callback(null, name + Date.now() + '.' + extension);
+    } else {
+      callback(new Error('Invalid file type'), null);
+    }
   }
 });
 
-module.exports = multer({storage: storage}).single('image');
+const fileFilter = (req, file, callback) => {
+  if (allowedMimeTypes.includes(file.mimetype)) {
+    callback(null, true);
+  } else {
+    callback(null, false);
+  }
+};
+
+const upload = multer({
+  storage: storage,
+  fileFilter: fileFilter,
+  limits: { fileSize: maxFileSize }
+}).single('image');
+
+module.exports = upload;
